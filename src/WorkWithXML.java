@@ -49,6 +49,7 @@ public class WorkWithXML extends TaskList{
     public void printXML(TaskList toDo) throws TransformerFactoryConfigurationError, DOMException {
         try {
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            //ToDoList_update.xml содержит в себе root
             Document document = documentBuilder.parse("ToDoList_update.xml");
 
             for (Task task : toDo.getToDoList()) {
