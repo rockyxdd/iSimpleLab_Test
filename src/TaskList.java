@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class TaskList extends Task {
+public class TaskList extends ImplementTask {
 
     private List<Task> toDoList = new ArrayList<>();
 
@@ -13,49 +13,48 @@ public class TaskList extends Task {
 
     public void printAll () {
         for (Task task : this.toDoList)
-            task.printTask();
+            printTask(task);
     }
     public void printStatus (String status) {
         for (Task task : this.toDoList) {
             if (task.getStatus().equals(status))
-                task.printTask();
+                printTask(task);
         }
     }
 
-    public boolean uniqueId (String taskId) {
-        for (Task task: this.toDoList) {
-            if (task.getId().equals(taskId))
+    public boolean uniqueId (int taskId) {
+        for (Task task : this.toDoList) {
+            if (task.getId() == taskId)
                 return false;
         }
         return true;
     }
-    public String readId (String msg, String error) {
-        System.out.println(msg);
-        Scanner in = new Scanner(System.in);
-        String isUnique = in.nextLine();
+
+    public int readId (String msg, String error1, String error2) {
+
+        int isUnique = readInt(msg, error1);
 
         if (!uniqueId(isUnique)) {
-            System.out.println(error);
-            isUnique = readId(msg, error);
+            System.out.println(error2);
+            isUnique = readId(msg, error1, error2);
         }
         return isUnique;
     }
-    public int findId (String taskId) {
+    public int findId (int taskId) {
         for (int i = 0; i < this.toDoList.size(); ++i) {
-            if (this.toDoList.get(i).getId().equals(taskId))
+            if (this.toDoList.get(i).getId() == taskId)
                 return i;
         }
-        System.out.println("Отсутствует задача с заданным идентификатором!\n" +
-                "Введите идентификатор: ");
-        Scanner in = new Scanner(System.in);
-        String newTaskId = in.nextLine();
+        System.out.println("Отсутствует задача с заданным идентификатором!");
+        int newTaskId = readInt("Введите идентификатор задачи: ", "Ошибка! Введите целочисленное значение!" );
         return findId(newTaskId);
     }
-    public void inputTask () {
+
+    public Task inputTask () {
         Scanner in = new Scanner(System.in);
         Task newTask = new Task();
 
-        newTask.setId(readId("Введите идентификатор", "Ошибка! Идентификатор не является уникальным!"));
+        newTask.setId(readId("Введите идентификатор задачи: ", "Ошибка! Введите целочисленное значение!","Ошибка! Идентификатор не является уникальным!"));
         System.out.println("Введите заголовок задачи: ");
         newTask.setCaption(in.nextLine());
         System.out.println("Введите описание задачи: ");
@@ -66,17 +65,16 @@ public class TaskList extends Task {
         if (newTask.getStatus().equals("done"))
             newTask.setCompleteDate(readDate("Введите дату завершения задачи: ", "Ошибка! Введите дату в формате yyyy-MM-dd"));
 
-        addTask(newTask);
+        return newTask;
     }
-    public void removeTask (String taskId) {
-        this.toDoList.remove(findId(taskId));
+    public void removeTask (int taskId) {
+        this.toDoList.remove(taskId);
     }
-    public void completeTask (String taskId) {
-        int id = findId(taskId);
-        this.toDoList.get(id).setStatus("done");
-        this.toDoList.get(id).setCompleteDate(new Date());
+    public void completeTask (int taskId) {
+        this.toDoList.get(taskId).setStatus("done");
+        this.toDoList.get(taskId).setCompleteDate(new Date());
     }
-    public void editTask (String taskId) {
-        this.toDoList.get(findId(taskId)).editTask();
+    public void editTask (int taskId) {
+        this.toDoList.get(taskId).setTask(editTask(this.toDoList.get(taskId)));
     }
 }

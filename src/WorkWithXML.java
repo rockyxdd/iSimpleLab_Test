@@ -1,6 +1,5 @@
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -12,10 +11,15 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-public class WorkWithXML extends TaskList{
 
-    public TaskList readXML (Document document, TaskList toDo) {
+public class WorkWithXML extends TaskList implements WorkWithFile{
+
+    @Override
+    public TaskList read (String uri) {
+        TaskList toDo = new TaskList();
         try{
+            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document document = documentBuilder.parse(uri);
             document.getDocumentElement().normalize();
             NodeList nList = document.getElementsByTagName("Task");
 
@@ -24,8 +28,8 @@ public class WorkWithXML extends TaskList{
                 if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                     Element element = (Element) nNode;
                     Task task = new Task();
-                    if (uniqueId(element.getElementsByTagName("Task_id").item(0).getTextContent())) {
-                        task.setId(element.getElementsByTagName("Task_id").item(0).getTextContent());
+                    if (uniqueId(Integer.parseInt(element.getElementsByTagName("Task_id").item(0).getTextContent()))) {
+                        task.setId(Integer.parseInt(element.getElementsByTagName("Task_id").item(0).getTextContent()));
                         task.setCaption(element.getElementsByTagName("Caption").item(0).getTextContent());
                         task.setDescription(element.getElementsByTagName("Description").item(0).getTextContent());
                         task.setPriority(Integer.parseInt(element.getElementsByTagName("Priority").item(0).getTextContent()));
@@ -43,10 +47,13 @@ public class WorkWithXML extends TaskList{
         } catch (ParseException e) {
             System.out.println("Ошибка! Даты не соответствуют формату yyyy-MM-dd. XML файл поврежден!");
             e.printStackTrace();
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            e.printStackTrace();
         }
         return toDo;
     }
-    public void printXML(TaskList toDo) throws TransformerFactoryConfigurationError, DOMException {
+    @Override
+    public void print(TaskList toDo, String uri) throws TransformerFactoryConfigurationError, DOMException {
         try {
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             //ToDoList_update.xml содержит в себе root
@@ -60,7 +67,7 @@ public class WorkWithXML extends TaskList{
                 root.appendChild(newTask);
 
                 Element taskId = document.createElement("Task_id");
-                taskId.setTextContent(task.getId());
+                taskId.setTextContent(String.valueOf(task.getId()));
                 newTask.appendChild(taskId);
 
                 Element caption = document.createElement("Caption");
@@ -89,20 +96,21 @@ public class WorkWithXML extends TaskList{
                     newTask.appendChild(completeDate);
                 }
             }
-            writeDocument(document);
+            writeDocument(document, uri);
         } catch (ParserConfigurationException ex) {
             ex.printStackTrace(System.out);
         } catch (SAXException | IOException e) {
             e.printStackTrace();
         }
     }
-    private static void writeDocument(Document document) throws TransformerFactoryConfigurationError {
+    @Override
+    public void writeDocument(Document document, String uri) throws TransformerFactoryConfigurationError {
         try {
             Transformer tr = TransformerFactory.newInstance().newTransformer();
             tr.setOutputProperty(OutputKeys.INDENT, "yes");
             tr.setOutputProperty(OutputKeys.METHOD, "xml");
             DOMSource source = new DOMSource(document);
-            StreamResult result = new StreamResult(new File("ToDoList.xml"));
+            StreamResult result = new StreamResult(new File(uri));
             tr.transform(source, result);
         } catch (TransformerException e) {
             e.printStackTrace(System.out);
