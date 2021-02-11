@@ -9,7 +9,7 @@ public class ImplementTask {
         System.out.println( "Идентификатор: " + task.getId() + "\n" +
                 "Задача: " + task.getCaption() + "\n" +
                 "Описание: " + task.getDescription() + "\n" +
-                "Приоритет: " + task.getDescription() + "\n" +
+                "Приоритет: " + task.getPriority() + "\n" +
                 "Дедлайн: " + new SimpleDateFormat("yyyy-MM-dd").format(task.getDeadline()) + "\n" +
                 "Статус: " + task.getStatus());
         if (task.getStatus().equals("done"))
@@ -63,30 +63,25 @@ public class ImplementTask {
     public Task editTask(Task task) {
         Scanner in = new Scanner(System.in);
         boolean isQuit = false;
-        Commands cmd = new Commands();
+        TaskOutput cmd = new TaskOutput();
         while (!isQuit) {
-            switch (cmd.editTaskMenu()) {
+            switch (cmd.editTaskOutput()) {
                 case 1:
-                    System.out.println("Введите новый заголовок: ");
                     task.setCaption(in.nextLine());
                     break;
                 case 2:
-                    System.out.println("Введите новое описание: ");
                     task.setDescription(in.nextLine());
                     break;
                 case 3:
-                    System.out.println("Введите новый приоритет: ");
                     task.setPriority(readInt("Введите приоритет задачи: ", "Ошибка! Введите целочисленное значение!"));
                     break;
                 case 4:
-                    System.out.println("Введите новый дедлайн: ");
                     task.setDeadline(readDate("Введите дедлайн задачи: ", "Ошибка! Введите дату в формате yyyy-MM-dd"));
                     break;
                 case 5:
                     isQuit = true;
                     break;
                 default:
-                    System.out.println("Ошибка! Введите число от 1 до 5.");
                     break;
             }
         }

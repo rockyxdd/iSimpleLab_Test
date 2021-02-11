@@ -1,3 +1,4 @@
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -25,26 +26,34 @@ public class Menu {
         }
     }
     public boolean executeCommand (String cmd, TaskList toDo) {
-        boolean wasExecuted = false;
+        if (cmd.equals("help")) {
+            help();
+            return true;
+        }
         String[] words = cmd.split("\s");
         if (words.length != 2) {
             for (Command command : this.allCommands) {
                 if (command.getCmd().equals(cmd)) {
                     command.execute(toDo);
-                    wasExecuted = true;
+                    return true;
                 }
             }
         } else
             for (Command command : this.allCommands) {
-                if (command.getCmd().equals(words[0])) {
-                    command.setId(Integer.parseInt(words[1]));
-                    command.execute(toDo);
-                    wasExecuted = true;
+                try {
+                    if (command.getCmd().equals(words[0])) {
+                        command.setId(Integer.parseInt(words[1]));
+                        command.execute(toDo);
+                        return true;
+                    }
+                } catch (NumberFormatException e) {
+                    return false;
                 }
             }
-        return wasExecuted;
+        return false;
     }
     public void runMenu (TaskList toDo) {
+        help();
         System.out.println("User: ");
         String cmd = in.nextLine();
         while (!cmd.equals("exit")) {
